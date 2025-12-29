@@ -30,7 +30,7 @@ class Canvas():
     def __getitem__(self, ind:int):
         """ return the item of self.lst_unpack_rep at the position ind """
 
-        assert ind > 0, "canvas indices must be positive"
+        assert ind >= 0, "canvas indices must be positive"
         assert isinstance(ind, int), "canvas indices must be integer"
         assert ind < len(self.lst_unpack_rep), "canvas index out of range"
 
@@ -79,7 +79,7 @@ class Canvas():
 ## without modular variation :
 from random import randint
 
-def encode_int(cnv:Canvas, msg_int:list[int]):
+def encode_int(cnv:Canvas, msg_int:list[int], mod=10):
     """without modular variation -- cypher part which encypher a list of integers msg_int using the canvas cnv as described in the wiki"""
 
     code = []
@@ -90,9 +90,9 @@ def encode_int(cnv:Canvas, msg_int:list[int]):
         for _ in range(len(code), pos+1): code.append(None) ## None items are used to filled gaps before they get their values
 
         if code[ind] == None : code[ind] = randint(0, 9)
-        code[pos] = (msg_int[ind]-code[ind])%25
+        code[pos] = (msg_int[ind]-code[ind])%mod
 
     for ind in range(len(code)):
         if code[ind] == None : code[ind] = randint(0, 9) ## gaps may stay at the end of the process
-        
+
     return code

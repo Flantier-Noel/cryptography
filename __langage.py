@@ -12,9 +12,8 @@ class Langage():
         self.consL = ['r' , 'l', 'n']
 
         self.alphab = self.vowel + self.consH + self.consL
-        #self.lettre_order = {self.alphab[i]:i for i in range(len(self.alphab))}
 
-        with open(base+'/noun.txt') as noun :
+        with open(base+'/noun.txt', 'r') as noun :
             self.noun_lst = noun.readlines()
             for i in range(len(self.noun_lst)) : self.noun_lst[i] = self.noun_lst[i][:-1]
             self.noun_lst = sort_alphab(self.noun_lst, self.alphab)
@@ -25,7 +24,7 @@ class Langage():
                 if self.noun_reg[lettre] == -1 : self.noun_reg[lettre] = ind
                 ind += 1
 
-        with open(base+'/name.txt') as name :
+        with open(base+'/name.txt', 'r') as name :
             self.name_lst = name.readlines()
             for i in range(len(self.name_lst)) : self.name_lst[i] = self.name_lst[i][:-1]
             self.name_lst = sort_alphab(self.name_lst, self.alphab)
@@ -38,18 +37,28 @@ class Langage():
                     self.name_reg[self.name_lst[ind-1][0]][1] = ind-1
                 ind += 1
 
+        with open(base+'/link.txt', 'r') as link :
+            self.link_lst = link.readlines()
+            for i in range(len(self.link_lst)) : self.link_lst[i] = self.link_lst[i][:-1]
+
         self.verb_declin = {0:"a", 1:"à", 2:"àf", 3:"á", 4:"áf"}
 
         self.gender_declin = {0:"", 1:"o", 2:"i"}
         self.number_declin = {0:".", 1:":", 2:"|"}
     
-    def phrase(self, key, ind0=0):
+    def phrase(self, key:list[int], ind0=0):
         ind = ind0
 
-        time_int = int(key[ind])
-        relativ = (time_int>=5)
-        if relativ : time = [time_int]
-        else : time = [time_int, time_int-5]
+        time_int = key[ind]
+        relativ = (time_int<5)
+        if relativ : 
+            time = [time_int]
+            link = None
+        else :
+            t0 = randint(5, time_int) 
+            time = [t0-5, time_int-t0]
+            i0 = randint(0, len(self.link_lst)-1)
+            link = self.link_lst[i0]
         ind += 1
 
         def subj_from_int(val0, val1):
@@ -103,4 +112,33 @@ class Langage():
             verb.append(verb_from_int(key[ind], time[1]))
             ind += 1
 
-        metadata = {'time':time, 'relat':relativ, 'subj':subj, 'verb':verb}
+        objt = []
+        alone = randint(1, 100)
+        if alone <= 10 : objt.append(None)
+        else :
+            objt.append(subj_from_int(key[ind], key[ind+1]))
+            ind += 2
+        if relativ :
+            alone = randint(1, 100)
+            if alone <= 10 : objt.append(None)
+            else :
+                objt.append(subj_from_int(key[ind], key[ind+1]))
+                ind += 2
+
+        str_lst_repr = []
+        str_lst_repr.append(subj[0]['value'])
+        str_lst_repr.append(verb[0]['value'])
+        if objt[0] != None : str_lst_repr.append(objt[0]['value'])
+        if len(time) >= 2 :
+            str_lst_repr.append(link)
+            if subj[1] != None : str_lst_repr.append(subj[1]['value'])
+            str_lst_repr.append(verb[1]['value'])
+            if objt[1] != None : str_lst_repr.append(subj[1]['value'])
+
+        str_repr = ' '.join(str_lst_repr)
+        char_lst_rerpr = list(str_repr)
+        repr = {'word':str_lst_repr, 'char':char_lst_rerpr, 'str':str_repr}
+
+        metadata = {'time':time, 'subj':subj, 'verb':verb, 'objt':objt, 'link':link, 'repr':repr}
+
+        return metadata

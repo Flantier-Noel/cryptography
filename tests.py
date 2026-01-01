@@ -22,7 +22,7 @@ print(code)'''
 
 from __langage import __Tree
 
-alphab = ['a', 'b', 'c']
+alphab = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j']
 def rules(past):
     if len(past) == 0 : return {c:True for c in alphab}
     possible = {c:True for c in alphab}
@@ -31,3 +31,8 @@ def rules(past):
     return possible
 
 t0 = __Tree.generate0(alphab, rules, 3)
+
+d = t0['a']
+d['b'] = 1
+
+print(t0['a'])

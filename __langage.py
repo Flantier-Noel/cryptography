@@ -24,11 +24,13 @@ class Langage():
             self.noun_lst = noun.readlines()
             for i in range(len(self.noun_lst)) : self.noun_lst[i] = self.noun_lst[i][:-1]
             self.noun_lst = sort_alphab(self.noun_lst, self.alphab)
-            self.noun_reg = {lettre:-1 for lettre in self.alphab}
+            self.noun_reg = {lettre:[-1, -1] for lettre in self.alphab}
             ind = 0
-            while self.noun_reg[self.alphab[-1]] == -1 :
+            while ind < len(self.noun_lst) and self.noun_reg[self.alphab[-1]][0] == -1 :
                 lettre = self.noun_lst[ind][0]
-                if self.noun_reg[lettre] == -1 : self.noun_reg[lettre] = ind
+                if self.noun_reg[lettre] == -1 : 
+                    self.noun_reg[lettre][0] = ind
+                    self.name_reg[self.name_lst[ind-1][0]][1] = ind-1
                 ind += 1
 
         with open(base+'/name.txt', 'r') as name :
@@ -37,7 +39,7 @@ class Langage():
             self.name_lst = sort_alphab(self.name_lst, self.alphab)
             self.name_reg = {lettre:[-1,-1] for lettre in self.alphab}
             ind = 0
-            while self.name_reg[self.alphab[-1]][0] == -1 :
+            while ind < len(self.name_lst) and self.name_reg[self.alphab[-1]][0] == -1 :
                 lettre = self.name_lst[ind][0]
                 if self.name_reg[lettre] == -1 : 
                     self.name_reg[lettre][0] = ind
@@ -57,15 +59,15 @@ class Langage():
         ind = ind0
 
         time_int = key[ind]
-        relativ = (time_int<5)
+        relativ = (time_int>=5)
         if relativ : 
-            time = [time_int]
-            link = None
-        else :
             t0 = randint(5, time_int) 
             time = [t0-5, time_int-t0]
             i0 = randint(0, len(self.link_lst)-1)
             link = self.link_lst[i0]
+        else :
+            time = [time_int]
+            link = None
         ind += 1
 
         def subj_from_int(val0, val1):

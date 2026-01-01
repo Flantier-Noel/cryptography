@@ -45,8 +45,8 @@ class Langage():
 
         self.gender_declin = {0:"", 1:"o", 2:"i"}
         self.number_declin = {0:".", 1:":", 2:"|"}
-    
-    def phrase(self, key:list[int], ind0=0):
+
+    def sentence(self, key:list[int], ind0=0):
         ind = ind0
 
         time_int = key[ind]
@@ -139,6 +139,81 @@ class Langage():
         char_lst_rerpr = list(str_repr)
         repr = {'word':str_lst_repr, 'char':char_lst_rerpr, 'str':str_repr}
 
-        metadata = {'time':time, 'subj':subj, 'verb':verb, 'objt':objt, 'link':link, 'repr':repr}
+        metadata = {'time':time, 'subj':subj, 'verb':verb, 'objt':objt, 'link':link, 'repr':repr, 'last':ind}
 
         return metadata
+
+    def paragraph(self, key):
+        ind = 0
+        key1 = key.copy()
+        metadata = {'metas':[]}
+        repr_str_lst = []
+
+        while ind <= len(key):
+            if len(key1)-ind <= 12 :
+                for _ in range(12): key1.append(randint(0, 9))
+            
+            metadata0 = self.sentence(key1, ind0=ind)
+            ind = metadata0['last']
+            metadata['metas'].append(metadata0)
+            for word in metadata0['repr']['word'] : repr_str_lst.append(word)
+            repr_str_lst.append('.')
+
+        repr_str = ' '.join(repr_str_lst)
+        repr_char = list(repr_str)
+        metadata['repr'] = {'word':repr_str_lst, 'char':repr_char, 'str':repr_str}
+
+        return metadata
+
+class __Tree():
+    def __init__(self, value, sons, probas):
+        self.value = value
+        self.sons = sons ## dict str:three ?
+        self.probas = probas ## dict str:float ?
+
+    def __heights(self):
+        if len(self.sons) == 0 : return [1]
+        hgts = []
+        for s in self.sons.keys():
+            pass
+
+
+    def __str__(self):
+        Lval = []
+        def pos_with_dh(tree, dh, i0, j0):
+            for s in tree.sons.values():
+                pos_with_dh()
+
+    def __getitem__(self, key:list[str]):
+        def search_with_ind(tree, __ind):
+            if len(key)==__ind : return self.probas
+            return search_with_ind(tree.sons[key[__ind]], __ind+1)
+        return search_with_ind(self, key, 0)
+
+    @classmethod
+    def generate0(cls, alphab, rules, max_deepth):
+        def generate_with_memory(val, past):
+            if len(past) == max_deepth : return __Tree(None, [], [])
+            usable = rules(past)
+            sons = {}
+            for l in alphab :
+                if usable[l] :
+                    past_ = past.copy() ; past_.append(l)
+                    sons[l] = generate_with_memory(l, past_)
+            sons[None] = __Tree(None, [], [])
+            probas = {l:1/len(sons) for l in sons.keys()}
+            return __Tree(val, sons, probas)
+
+class __generator():
+    def __init__(self, language:Langage, tp:str):
+        self.data = {'noun':language.noun_lst, 'name':language.name_lst}[tp]
+        self.__normal_size = 100
+        def rules(past):
+            if past == 0 : possibles = {}
+            possibles = {l:True for l in language.alphab}
+            for l in language.alphab :
+                if past[-1] in language.consH and l in language.consH : # no consecutive high consone
+                    possibles[l] = False
+                if past[-1] == l : # no consecutive same letter
+                    possibles[l] = False  
+            return possibles
